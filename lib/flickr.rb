@@ -3,34 +3,26 @@ require "hpricot"
 
 class Flickr
   Photoset = Struct.new(:title, :slug, :photo, :description)
-  Photo    = Struct.new(:slug, :url, :thumb)
+  Photo    = Struct.new(:slug, :title, :url, :thumb)
   
   def initialize(api_key, user_id, storage_dir)
     @api_key, @user_id, @storage_dir = api_key, user_id, storage_dir
   end
   
-  def photosets
-    get("flickr.photosets.getList").search(:photoset).pmap do |set|
-      Photoset.new(set.at(:title).inner_html,
-                   set["id"],
-                   photo(set["primary"]),
-                   set.at(:description).inner_html)
+  def photos_with_tags(tags)
+    @auth = "no_user_id"
+    get("flickr.photos.search", :tags => tags).search(:photo).pmap do |data|
+      photo data["id"], data["title"]
     end
   end
   
-  def photos_in_set(id)
-    get("flickr.photosets.getPhotos", :photoset_id => id).search(:photo).pmap do |data|
-      photo data["id"]
-    end
-  end
-  
-  def photo(id)
+  def photo(id, title)
     original = thumbnail = nil
     get("flickr.photos.getSizes", :photo_id => id).search(:size).each do |size| 
       original  = size["source"] if size["label"] == "Original"
       thumbnail = size["source"] if size["label"] == "Square"
     end
-    Photo.new(id, original, thumbnail)
+    Photo.new(id, title, original, thumbnail)
   end
   
   def zipfile(photoset_id)
@@ -51,12 +43,15 @@ class Flickr
     end
   
     def get(method, query={})
-      puts url(query.merge(:method => method))
       Hpricot::XML open(url(query.merge(:method => method)))
     end
     
     def url(request={})
-      request = { :api_key => @api_key, :user_id => @user_id }.merge(request).to_query_string
+      if @auth == "no_user_id"
+        request = { :api_key => @api_key }.merge(request).to_query_string
+      else
+        request = { :api_key => @api_key, :user_id => @user_id }.merge(request).to_query_string
+      end
       "http://api.flickr.com/services/rest/?#{request}"
     end
 end

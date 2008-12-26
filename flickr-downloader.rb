@@ -48,28 +48,30 @@ end
 __END__
 
 @@home
-%h1 my flickr sets
+%h1 25c3 last photos
 %ul
-  - flickr.photosets.each do |set|
+  - flickr.photos_with_tags("25c3").each do |photo|
     %li{ :class => cycle("even", "odd") }
-      %h2= escape_once set.title
+      %h2= escape_once photo.title
       %p
-        %img{ :src => set.photo.thumb, :alt => set.title }
-        %a{ :href => "/#{set.slug}.zip" } Download Zip
+        %img{ :src => photo.thumb, :alt => photo.title }
+        %a{ :href => "/twitpic/photo.id" } TwitPic This
 
 @@layout
 !!! Strict
 %html{ html_attrs }
   %head
     %meta{ :"http-equiv" => "Content-Type", :content => "text/html; charset=utf-8" }
-    %title Flickr Downloader!
+    %title TwitPic this 25c3!
     %link{ :href => "/reset.css", :type => "text/css", :rel => "stylesheet" }
     %link{ :href => "/styles.css", :type => "text/css", :rel => "stylesheet" }
   %body
     #content
       = yield
     %address#footer
-      By <a href="http://nicolassanguinetti.info">Nicolás Sanguinetti</a>
+      By <a href="http://alexgirard.com">Alex Girard</a><br>
+      From <a href="http://nicolassanguinetti.info">Nicol&aacute;s Sanguinetti</a> 
+      <a href="http://github.com/foca/flickr-downloader/tree/master">Flickr Downloader</a>
     %script{ :src => "/prototype-1.6.0.2.js", :type => "text/javascript" }
     %script{ :src => "/polling.js", :type => "text/javascript" }
 
