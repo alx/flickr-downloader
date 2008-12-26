@@ -51,6 +51,7 @@ class Flickr
     end
   
     def get(method, query={})
+      puts url(query.merge(:method => method))
       Hpricot::XML open(url(query.merge(:method => method)))
     end
     
