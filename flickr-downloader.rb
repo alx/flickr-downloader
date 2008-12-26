@@ -30,7 +30,7 @@ end
 
 helpers do
   def flickr
-    @flickr ||= Flickr.new(CONFIG[:api_key], CONFIG[:user_id], downloads_dir)
+    @flickr ||= Flickr.new(CONFIG["api_key"], CONFIG["user_id"], downloads_dir)
   end
   
   def downloads_dir
