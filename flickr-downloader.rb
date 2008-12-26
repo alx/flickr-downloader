@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift "#{File.dirname(__FILE__)}/lib", *Dir["#{File.dirname(__FILE__)}/vendor/**/lib"].to_a
 require "flickr"
+require "twitpic"
 require "yaml"
 require "rubygems"
 require "sinatra"
@@ -12,6 +13,11 @@ use_in_file_templates!
 
 get "/" do
   haml :home
+end
+
+get "/twitpic/:id" do
+  twitpic.upload flickr.download_photo(params[:id])
+  redirect "/"
 end
 
 get "/:id.zip" do
@@ -31,6 +37,10 @@ end
 helpers do
   def flickr
     @flickr ||= Flickr.new(CONFIG["api_key"], CONFIG["user_id"], downloads_dir)
+  end
+  
+  def twitpic
+    @twitpic ||= TwitPic.new(CONFIG["twitter_login"], CONFIG["twitter_pass"])
   end
   
   def downloads_dir
@@ -55,7 +65,7 @@ __END__
       %h2= escape_once photo.title
       %p
         %img{ :src => photo.thumb, :alt => photo.title }
-        %a{ :href => "/twitpic/photo.id" } TwitPic This
+        %a{ :href => "/twitpic/#{photo.id}_#{photo.secret}" } TwitPic This
 
 @@layout
 !!! Strict

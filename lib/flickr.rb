@@ -3,20 +3,20 @@ require "hpricot"
 
 class Flickr
   Photoset = Struct.new(:title, :slug, :photo, :description)
-  Photo    = Struct.new(:slug, :title, :url, :thumb)
+  Photo    = Struct.new(:id, :secret, :title, :url, :thumb, :path)
   
   def initialize(api_key, user_id, storage_dir)
     @api_key, @user_id, @storage_dir = api_key, user_id, storage_dir
   end
   
   def photos_with_tags(tags)
-    @auth = "no_user_id"
     get("flickr.photos.search", :tags => tags).search(:photo).pmap do |data|
-      photo data["id"], data["title"]
+      photo data["id"], data["secret"], data["title"]
     end
   end
   
-  def photo(id, title)
+  def photo(id, secret, title)
+    
     original = thumbnail = nil
     photo = get("flickr.photos.getSizes", :photo_id => id)
     
@@ -26,7 +26,22 @@ class Flickr
         thumbnail = size["source"] if size["label"] == "Square"
       end
     end
-    Photo.new(id, title, original, thumbnail)
+    
+    Photo.new(id, secret, title, original, thumbnail)
+  end
+  
+  def download_photo(id)
+    photo_id, photo_secret = id.split("_")
+    photo_title = get("flickr.photos.getInfo", :photo_id => photo_id).at(:title).inner_html
+    @photo = Photo.new photo_id, photo_secret, photo_title
+    
+    get("flickr.photos.getSizes", :photo_id => id).search(:size).each do |size| 
+      @photo.url  = size["source"] if size["label"] == "Medium"
+    end
+    
+    @photo.path = File.join(@storage_dir, @photo.id + File.extname(@photo.url))
+    `curl #{@photo.url} >#{@photo.path} 2>/dev/null`
+    @photo
   end
   
   def zipfile(photoset_id)
@@ -40,7 +55,7 @@ class Flickr
     def download_photos(photoset_id)
       FileUtils.mkdir_p File.join(@storage_dir, photoset_id)
       photos_in_set(photoset_id).pmap do |photo|
-        File.join(@storage_dir, photoset_id, photo.slug.to_s + File.extname(photo.url)).tap do |path|
+        File.join(@storage_dir, photoset_id, photo.id.to_s + File.extname(photo.url)).tap do |path|
           `curl #{photo.url} >#{path} 2>/dev/null`
         end
       end
@@ -51,11 +66,7 @@ class Flickr
     end
     
     def url(request={})
-      if @auth == "no_user_id"
-        request = { :api_key => @api_key }.merge(request).to_query_string
-      else
-        request = { :api_key => @api_key, :user_id => @user_id }.merge(request).to_query_string
-      end
+      request = { :api_key => @api_key }.merge(request).to_query_string
       "http://api.flickr.com/services/rest/?#{request}"
     end
 end
