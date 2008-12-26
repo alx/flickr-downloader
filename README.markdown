@@ -1,23 +1,25 @@
-# Flickr Downloader
+# Flickr TwitPic
 
-Small [Sinatra][] application that lists your flickr photosets (you need to provide your
-user id and api key), and lets you download a zipfile with all the photos in each set.
+Small [Sinatra][] application that lists photos from flickr (you need to provide your
+api key), and lets you twit this photos on twitter (you need to provide your twitter
+login and password) using twitpic.
 
 ## Why?
 
-Because a lot of friends of mine wanted to mass-download my photos from flickr. And anything
-is a good reason to play with Sinatra ;)
+Because I'll use it this weekend (27/12/2008 - 30/12/2008) to follow 
+[https://events.ccc.de/congress/2008/][25c3] conference, and it could serve to
+follow other events too.
 
 ## How to use
 
 Just clone the repo, and add a `config/config.yml` (see `config/config.sample.yml` for an
-extremely easy example). Then run `ruby flickr-downloader.rb`, and you're done! For an easy 
+extremely easy example). Then run `ruby flickr-twit.rb`, and you're done! For an easy 
 way to deploy Sinatra apps to production, [cschneid][] has a great blog post about [setting 
 up thin with Sinatra][thin-setup].
 
 ## Example
 
-Check out [http://photos.nicolassanguinetti.info][example] for a running example of this app.
+Check out [http://twitter.com/25c3_flickr][example] for a running example of this app.
 
 ## Warning
 
@@ -32,6 +34,7 @@ But hey, it's open source ;)
 (The MIT License)
 
 Copyright (c) 2008 [Nicolás Sanguinetti][foca].
+Copyright (c) 2008 [Alexandre Girard][alx].
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -56,4 +59,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 [cschneid]:   http://gittr.com
 [thin-setup]: http://gittr.com/index.php/archive/deploying-sinatra-via-thin-and-lighttpd/
 [foca]:       http://nicolassanguinetti.info
-[example]:    http://photos.nicolassanguinetti.info
+[example]:    https://twitter.com/25c3_flickr
+[25c3]:       https://events.ccc.de/congress/2008
+[alx]:        http://alexgirard.com

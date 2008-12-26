@@ -16,7 +16,9 @@ get "/" do
 end
 
 get "/twitpic/:id" do
-  twitpic.upload flickr.download_photo(params[:id])
+  photo = flickr.download_photo(params[:id])
+  photo.title += " #25c3" 
+  twitpic.upload photo
   redirect "/"
 end
 
