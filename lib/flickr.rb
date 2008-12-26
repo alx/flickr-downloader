@@ -18,9 +18,13 @@ class Flickr
   
   def photo(id, title)
     original = thumbnail = nil
-    get("flickr.photos.getSizes", :photo_id => id).search(:size).each do |size| 
-      original  = size["source"] if size["label"] == "Original"
-      thumbnail = size["source"] if size["label"] == "Square"
+    photo = get("flickr.photos.getSizes", :photo_id => id)
+    
+    if photo.at(:sizes)['candownload'].to_i == 1
+      photo.search(:size).each do |size| 
+        original  = size["source"] if size["label"] == "Original"
+        thumbnail = size["source"] if size["label"] == "Square"
+      end
     end
     Photo.new(id, title, original, thumbnail)
   end
